@@ -59,6 +59,19 @@ public:
 	bool empty(){
 		return this->count == 0;
 	}
+
+	void SortCustomer(){
+		int MaxValue = INT16_MIN;
+		ValueCustomer* tmpCus = this->head;
+		ValueCustomer* PosMax = nullptr;
+		for(int i = 0 ;i < this->count ;i++){
+			if(MaxValue <= abs(tmpCus->energy)){
+				MaxValue = abs(tmpCus->energy);
+				PosMax = tmpCus;
+			}
+			tmpCus = tmpCus->next;
+		}
+	}
 };
 
 class Order{
