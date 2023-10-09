@@ -10,7 +10,7 @@ private:
 	ValueCustomer* head;
 	ValueCustomer* tail;
 	friend class ValueCustomer;
-public:
+private:
 	class ValueCustomer{
 		public:
 			ValueCustomer* next;
