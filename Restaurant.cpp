@@ -72,6 +72,14 @@ public:
 			tmpCus = tmpCus->next;
 		}
 	}
+
+	void print(){
+		ValueCustomer* tmpQ = head;
+		for(int i = 0; i < this->count;i++){
+			cout << tmpQ->name <<"-"<< tmpQ->energy<<endl;
+			tmpQ = tmpQ->next;
+		}
+	}
 };
 
 class Order{
@@ -602,6 +610,7 @@ class imp_res : public Restaurant
 		}
 		void LIGHT(int num)
 		{
+			if(num == 0) this->cusQueue->print();
 			customer* tmpI = this->current;
 			if(num > 0){
 				for(int i = 0; i < this->number_of_people;i++){
