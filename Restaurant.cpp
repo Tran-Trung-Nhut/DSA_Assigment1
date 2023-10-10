@@ -222,16 +222,37 @@ class imp_res : public Restaurant
 			delete current;
 		}
 
-		void swapCustomer(customer* cus1, customer* cus2){
-			customer* tmpCus2 = cus2;
-			customer* tmpnext2 = cus2->next;
-			cus2->next->prev = cus1;
-			cus1->prev->next = tmpCus2;
-			cus2->prev = cus1->prev;
-			cus2->next = cus1;
-			cus1->prev = tmpCus2;
-			cus1->next = tmpnext2;
+		//Cập nhật vị trí khách hàng
+		void updateCustomer(customer* cus) {
+			cus->prev->next = cus;
+			cus->next->prev = cus;
 		}
+
+		void swapCustomer(customer* cus1, customer* cus2){
+			if (cus2->next == cus1) {
+					customer *temp = cus1;
+					cus1 = cus2;
+					cus2 = temp;
+				}
+
+			if (cus2->next != cus1) {
+				customer *n1_prev = cus1->prev;
+				customer *n2_next = cus2->next;
+
+				if (cus1->next == cus2) {
+					cus1->prev = cus1->next;
+					cus2->next = cus2->prev;
+				} else {
+					cus1->prev = cus2->prev;
+					cus2->next = cus1->next;
+				}
+				cus2->prev = n1_prev;
+				cus1->next = n2_next;
+
+				updateCustomer(cus1);
+				updateCustomer(cus2);
+			}
+		}	
 
 		void SitWherever (customer* cus, string name, int energy){
 			this->current = cus;
@@ -325,7 +346,7 @@ class imp_res : public Restaurant
 				customer* tmpCus = current;
 				int RES;
 				for(int i = 0;i < this->number_of_people;i++){
-					RES = max(RES,abs(energy-tmpCus->energy));
+					RES = max(RES,abs(energy - tmpCus->energy));
 					tmpCus = tmpCus->next;
 				}
 				for(int i = 0;i < this-> number_of_people;i++){
@@ -417,13 +438,73 @@ class imp_res : public Restaurant
 		}
 		void REVERSAL()
 		{
-			if(this->number_of_people <= 2) return;
-			customer* tmpCus = this->current;
-			for(int i = 0;i < this->number_of_people;i++){
-				if((tmpCus->energy * tmpCus->prev->energy) > 0){
-					swapCustomer(tmpCus->prev,tmpCus);
-				}else tmpCus = tmpCus -> prev;
+			
+			customer* cusStart_yin = this->current;
+			customer* cusEnd_yin = this->current->next;
+			customer* cusStart_yang = this->current;
+			customer* cusEnd_yang = this->current->next;
+
+			while(cusStart_yin->energy > 0 || cusEnd_yin->energy > 0){
+				if(cusStart_yin->energy > 0){
+					cusStart_yin = cusStart_yin->prev;
+				}
+				if(cusEnd_yin->energy > 0){
+					cusEnd_yin = cusEnd_yin->next;
+				}
 			}
+			
+			while(cusStart_yang->energy < 0 || cusEnd_yang->energy < 0){
+				if(cusStart_yang->energy < 0){
+					cusStart_yang = cusStart_yang->prev;
+				}
+				if(cusEnd_yang->energy < 0){
+					cusEnd_yang = cusEnd_yang->next;
+				}
+			}
+
+			do{
+				if(cusStart_yin->energy < 0 && cusEnd_yin->energy < 0){
+					swapCustomer(cusStart_yin,cusEnd_yin);
+					customer* tmpCus = cusEnd_yin;
+					cusEnd_yin = cusStart_yin;
+					cusStart_yin = tmpCus;
+					if(cusStart_yin->prev == cusEnd_yin){
+						cusStart_yin = cusEnd_yin;
+					}else{
+						cusStart_yin = cusStart_yin->prev;
+						cusEnd_yin = cusEnd_yin->next;
+					}
+				}else{
+					if(cusStart_yin->energy > 0){
+						cusStart_yin = cusStart_yin->prev;
+					}
+					if(cusEnd_yin->energy > 0){
+						cusEnd_yin = cusEnd_yin->next;
+					}
+				}
+			}while(cusStart_yin != cusEnd_yin);
+
+			do{
+				if(cusStart_yang->energy > 0 && cusEnd_yang->energy > 0){
+					swapCustomer(cusEnd_yang,cusStart_yang);
+					customer* tmpCus = cusEnd_yang;
+					cusEnd_yang = cusStart_yang;
+					cusStart_yang = tmpCus;
+					if(cusStart_yang->prev == cusEnd_yang){
+						cusStart_yang = cusEnd_yang;
+					}else{
+						cusStart_yang = cusStart_yang->prev;
+						cusEnd_yang = cusEnd_yang->next;
+					}
+				}else{
+					if(cusStart_yang->energy < 0){
+						cusStart_yang = cusStart_yang->prev;
+					}
+					if(cusEnd_yang->energy < 0){
+						cusEnd_yang = cusEnd_yang->next;
+					}
+				}
+			}while(cusStart_yang != cusEnd_yang);
 		}
 		void UNLIMITED_VOID()
 		{

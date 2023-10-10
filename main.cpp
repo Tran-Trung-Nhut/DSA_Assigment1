@@ -30,8 +30,8 @@ void simulate(string filename, imp_res* r)
     			r->PURPLE();
 		}
 		else if(str == "REVERSAL") // REVERSAL
-		{
-    			r->REVERSAL();	
+	    {
+				r->REVERSAL();	
 		}
     	else if(str == "UNLIMITED_VOID") // UNLIMITED_VOID
      	{   	

@@ -1,0 +1,11 @@
+MAXSIZE 12
+RED aaa 1
+RED bbb 2
+RED ccc -3
+RED ddd 4
+RED eee -5
+RED fff 6
+RED ggg 7
+RED hhh -8
+REVERSAL
+LIGHT 3
