@@ -442,7 +442,8 @@ class imp_res : public Restaurant
 		}
 		void PURPLE()
 		{
-			if(this->number_of_people == 0) return;
+			if(this->cusQueue->size() == 0 || this->cusQueue->size() == 1) return;
+
 		}
 		void REVERSAL()
 		{
