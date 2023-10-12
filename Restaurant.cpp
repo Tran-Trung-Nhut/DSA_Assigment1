@@ -352,17 +352,15 @@ class imp_res : public Restaurant
 			//Liệu số người vào được 1 nửa số lượng chỗ tối đa chưa
 			if(this->number_of_people >= max_People/2){
 				customer* tmpCus = current;
-				int RES;
+				int RES = INT16_MIN;
 				for(int i = 0;i < this->number_of_people;i++){
-					RES = max(RES,abs(energy - tmpCus->energy));
+					if(RES < abs(energy - tmpCus->energy)){
+						this->current = tmpCus;
+						RES = abs(energy - tmpCus->energy);
+					}
 					tmpCus = tmpCus->next;
 				}
-				for(int i = 0;i < this-> number_of_people;i++){
-					if(RES == abs(energy - tmpCus->energy)){
-						this->current = tmpCus;
-					}
-					tmpCus = tmpCus -> next;
-				}
+				
 				RES = energy - tmpCus->energy;
 				if(this->number_of_people < max_People){	
 					if(this->number_of_people == 0){		 
