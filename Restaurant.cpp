@@ -60,7 +60,7 @@ public:
 		return this->count == 0;
 	}
 
-	void SortCustomer(){
+	void SortCustomerQueue(){
 		int MaxValue = INT16_MIN;
 		ValueCustomer* tmpCus = this->head;
 		ValueCustomer* PosMax = nullptr;
@@ -443,7 +443,7 @@ class imp_res : public Restaurant
 		void PURPLE()
 		{
 			if(this->cusQueue->size() == 0 || this->cusQueue->size() == 1) return;
-
+			this->cusQueue->SortCustomerQueue();
 		}
 		void REVERSAL()
 		{
