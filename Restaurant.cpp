@@ -218,10 +218,9 @@ class imp_res : public Restaurant
 {
 	public:
 		customer* current;
-		int max_People;
 		int number_of_people;
 	public:
-		queue* cusQueue = new queue(this->max_People);
+		queue* cusQueue = new queue(MAXSIZE);
 		Order* ValueOrder = new Order();
 	public:
 
@@ -335,7 +334,6 @@ class imp_res : public Restaurant
 
 		void RED(string name, int energy)
 		{
-			this->max_People = MAXSIZE;
 			//Energy bằng 0 => cút
 			if(energy == 0) return;						
 
@@ -350,7 +348,7 @@ class imp_res : public Restaurant
 			customer *cus = new customer (name, energy, nullptr, nullptr);
 			
 			//Liệu số người vào được 1 nửa số lượng chỗ tối đa chưa
-			if(this->number_of_people >= max_People/2){
+			if(this->number_of_people >= MAXSIZE/2){
 				customer* tmpCus = current;
 				int RES = INT16_MIN;
 				for(int i = 0;i < this->number_of_people;i++){
@@ -362,7 +360,7 @@ class imp_res : public Restaurant
 				}
 				
 				RES = energy - tmpCus->energy;
-				if(this->number_of_people < max_People){	
+				if(this->number_of_people < MAXSIZE){	
 					if(this->number_of_people == 0){		 
 						this->SitWherever(cus, name,energy);
 					} else{
@@ -383,7 +381,7 @@ class imp_res : public Restaurant
 				return;
 			}
 			//Kiểm tra liệu liệu số khách hiện tại có bằng số khách tối đa chưa
-			if(this->number_of_people < max_People){
+			if(this->number_of_people < MAXSIZE){
 				//Nếu chưa có khách nào thì khách đầu tiên muốn ngồi đâu cũng say yes	 
 				if(this->number_of_people == 0){		 
 					this->SitWherever(cus, name, energy);
@@ -428,8 +426,8 @@ class imp_res : public Restaurant
 				}
 			}
 			//Hàng đợi có người thì thêm vào không thì thôi
-			if(!this->cusQueue->empty() && this->number_of_people < this->max_People){
-				while(this->number_of_people < this->max_People && !this->cusQueue->empty()){
+			if(!this->cusQueue->empty() && this->number_of_people < MAXSIZE){
+				while(this->number_of_people < MAXSIZE && !this->cusQueue->empty()){
 					string na = this->cusQueue->get()->name;
 					int e = this->cusQueue->get()->energy;
 					this->RED(na,e);
