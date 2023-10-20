@@ -6,7 +6,6 @@ class queue{
 class ValueCustomer;
 private:
 	int count;
-	int maxSize;
 	ValueCustomer* head;
 	ValueCustomer* tail;
 	friend class ValueCustomer;
@@ -14,14 +13,15 @@ private:
 	class ValueCustomer{
 		public:
 			ValueCustomer* next;
+			ValueCustomer* prev;
 			int energy;
 			string name;
 		public:
-			ValueCustomer(int e, string na) : energy(e),name(na),next(nullptr){};
+			ValueCustomer(int e, string na) : energy(e),name(na),next(nullptr),prev(nullptr){};
 			~ValueCustomer(){};
 	};
 public:
-	queue(int size):head(nullptr),tail(nullptr),maxSize(size),count(0){};
+	queue():head(nullptr),tail(nullptr),count(0){};
 	~queue();
 
 	int size(){
@@ -29,12 +29,13 @@ public:
 	}
 	void enqueue(int e, string na){
 		ValueCustomer* cus = new ValueCustomer(e,na);
-		if(this->count < this->maxSize){
+		if(this->count < MAXSIZE){
 			if(this->count == 0){
 				this->head = cus;
 				this->tail = cus;
 				
 			}else{
+				cus->prev = this->tail;
 				this->tail->next = cus;
 				this->tail = cus;
 			}
@@ -47,7 +48,8 @@ public:
 	void dequeue(){
 		if(this->count == 0) return;
 		ValueCustomer* cus = head;
-		this->head = this-> head->next;
+		this->head = this->head->next;
+		this->head->prev = nullptr;
 		this->count--;
 		delete cus;
 	}
@@ -60,10 +62,95 @@ public:
 		return this->count == 0;
 	}
 
-	void SortCustomerQueue(){
+	void Swap2Cus(ValueCustomer* cus1, ValueCustomer* cus2){
+		if(cus1 == this->head && cus2 == this->tail){
+			cus2->prev->next = cus1;
+			cus1->next->prev = cus2;
+			cus2->next = cus1->next;
+			cus1->next = nullptr;
+			this->head = cus2;
+			this->tail = cus1;
+			return;
+		}
+		if(cus1 == this->head){
+			if(cus1->next == cus2){
+				cus1->prev = cus2;
+				cus2->next->prev = cus1;
+				cus1->next = cus2->next;
+				cus2->prev = nullptr;
+				cus2->next = cus1;
+				this->head = cus2;
+				return;
+			}
+			cus1->next->prev = cus2;
+			cus2->next->prev = cus1;
+			cus2->prev->next = cus1;
+			ValueCustomer* tmp = cus1->next;
+			cus1->next = cus2->next;
+			cus1->prev = cus2->prev;
+			cus2->next = tmp;
+			this->head = cus2;
+			return;
+		}
+		if(cus2 == this->tail){
+			if(cus1->next == cus2){
+				cus2->next = cus1;
+				cus1->prev->next = cus2;
+				cus2->prev = cus1->prev;
+				cus1->prev = cus2;
+				cus1->next = nullptr;
+				this->tail = cus1;
+				return;
+			}
+			cus2->prev->next = cus1;
+			cus1->prev->next = cus2;
+			cus1->next->prev = cus2;
+			ValueCustomer* tmp = cus2->prev;
+			cus2->prev = cus1->prev;
+			cus2->next = cus1->next;
+			cus1->prev = tmp;
+			this->tail = cus1;
+			return;
+		}
+		if(cus1->next == cus2){
+			cus1->prev->next = cus2;
+			cus2->next->prev = cus1;
+			ValueCustomer* tmp1 = cus1;
+			ValueCustomer* tmp2 = cus1->prev;
+			cus1->next = cus2->next;
+			cus1->prev = cus2;
+			cus2->next = tmp1;
+			cus2->prev = tmp2;
+			return;
+		}
+		cus1->prev->next = cus2;
+		cus1->next->prev = cus2;
+		cus2->next->prev = cus1;
+		cus2->prev->next = cus1;
+		ValueCustomer* tmp1 = cus2->next;
+		ValueCustomer* tmp2 = cus2->prev;
+		cus2->next = cus1->next;
+		cus2->prev = cus1->prev;
+		cus1->prev = tmp2;
+		cus1->next = tmp1;
+	}
+
+	int SortCustomerQueue(){
+		if(this->count == 2){
+			this->tail = head;
+			this->head = this->head->next;
+			this->head->next = this->tail;
+			this->tail->prev = this->head;
+			return 1;
+		}
+
+		int times = 0;
+
 		int MaxValue = INT16_MIN;
 		ValueCustomer* tmpCus = this->head;
 		ValueCustomer* PosMax = nullptr;
+
+		//Tìm khách có giá trị tuyệt đối Energy lớn nhất 
 		for(int i = 0 ;i < this->count ;i++){
 			if(MaxValue <= abs(tmpCus->energy)){
 				MaxValue = abs(tmpCus->energy);
@@ -71,6 +158,38 @@ public:
 			}
 			tmpCus = tmpCus->next;
 		}
+
+		//Tìm độ dài hàng đợi cần sắp xếp
+		tmpCus = this->head;
+		int len = 1;
+		while(tmpCus != PosMax){
+			len += 1;
+			tmpCus = tmpCus->next;
+		}
+
+		for(int gap = len/2; gap > 0;gap /= 2){
+			for(int i = gap; i < len;i += 1){
+				int j = i;
+				ValueCustomer* tmpj = this->head;
+				for(int t = 0; t < j;t++){
+					tmpj = tmpj->next;\
+				}
+				ValueCustomer* tmpj_sub_gap = this->head;
+				for(int t = 0; t < j-gap; t++){
+					tmpj_sub_gap = tmpj_sub_gap->next;
+				}
+				while(abs(tmpj_sub_gap->energy) < abs(tmpj->energy) && j >= gap){
+					Swap2Cus(tmpj_sub_gap,tmpj);
+					times += 1;
+					j -= gap;
+					tmpj_sub_gap = this->head;
+					for(int t = 0; t < j-gap;t++){
+						tmpj_sub_gap = tmpj_sub_gap->next;
+					}
+				}
+			}
+		}
+		return times;
 	}
 
 	void print(){
@@ -220,7 +339,7 @@ class imp_res : public Restaurant
 		customer* current;
 		int number_of_people;
 	public:
-		queue* cusQueue = new queue(MAXSIZE);
+		queue* cusQueue = new queue();
 		Order* ValueOrder = new Order();
 	public:
 
@@ -439,7 +558,10 @@ class imp_res : public Restaurant
 		void PURPLE()
 		{
 			if(this->cusQueue->size() == 0 || this->cusQueue->size() == 1) return;
-			this->cusQueue->SortCustomerQueue();
+			int N = this->cusQueue->SortCustomerQueue();
+			cout<<N<<endl;
+			this->cusQueue->print();
+			return this->BLUE(N%MAXSIZE);
 		}
 		void REVERSAL()
 		{
@@ -607,7 +729,10 @@ class imp_res : public Restaurant
 		}
 		void LIGHT(int num)
 		{
-			if(num == 0) this->cusQueue->print();
+			if(num == 0){
+				this->cusQueue->print();
+				return;
+			}
 			customer* tmpI = this->current;
 			if(num > 0){
 				for(int i = 0; i < this->number_of_people;i++){
