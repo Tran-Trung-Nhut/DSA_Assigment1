@@ -559,8 +559,6 @@ class imp_res : public Restaurant
 		{
 			if(this->cusQueue->size() == 0 || this->cusQueue->size() == 1) return;
 			int N = this->cusQueue->SortCustomerQueue();
-			cout<<N<<endl;
-			this->cusQueue->print();
 			return this->BLUE(N%MAXSIZE);
 		}
 		void REVERSAL()
