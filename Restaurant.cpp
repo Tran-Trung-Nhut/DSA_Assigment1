@@ -17,6 +17,7 @@ class imp_res : public Restaurant
 				int size(){
 					return this->count;
 				}
+
 				void enqueue(customer* cus){
 					if(this->count < MAXSIZE){
 						if(this->count == 0){
@@ -34,15 +35,24 @@ class imp_res : public Restaurant
 						return;
 					}
 				}
+
 				void dequeue(){
 					if(this->count == 0) return;
-					customer* cus = head;
+					if(this->count == 1){
+						delete this->head;
+						this->head = nullptr;
+						this->tail = nullptr;
+						count -= 1;
+						return;
+					}
+					customer* cus = this->head;
 					this->head = this->head->next;
 					this->head->prev = nullptr;
 					this->count--;
 					delete cus;
 				}
 				
+
 				customer* get(){
 					return this->head;
 				}
@@ -256,14 +266,25 @@ class imp_res : public Restaurant
 		return "";
 	}
 
-				void print(){
-					customer* tmpQ = head;
-					for(int i = 0; i < this->count;i++){
-						cout << tmpQ->name <<"-"<< tmpQ->energy<<endl;
-						tmpQ = tmpQ->next;
-					}
-				}
-			};
+	void resetOrder(){
+		for(int i = 0; i < this->count; i++){
+			customer* out_order = this->head;
+			this->head = this->head->next;
+			delete out_order;
+		}
+		this->head = nullptr;
+		this->tail = nullptr;
+		this->count = 0;
+	}
+
+	void print(){
+		customer* tmpQ = head;
+		for(int i = 0; i < this->count;i++){
+			cout << tmpQ->name <<"-"<< tmpQ->energy<<endl;
+			tmpQ = tmpQ->next;
+		}
+	}
+	};
 	public:
 		queue* Queue = new queue();
 		queue* Order = new queue();
@@ -308,6 +329,8 @@ class imp_res : public Restaurant
 
 		void SitWherever (customer* cus){
 			this->current = cus;
+			this->current->next = cus;
+			this->current->prev = cus;
 			this->number_of_people += 1;
 			customer* cus_order = new customer(cus->name,cus->energy,nullptr,nullptr);
 			this->Order->enqueue(cus_order);
@@ -345,14 +368,15 @@ class imp_res : public Restaurant
 			this->current = cus;
 			this->number_of_people += 1;
 			customer* cus_order = new customer(cus->name,cus->energy,nullptr,nullptr);
-			Order->enqueue(cus_order);
+			this->Order->enqueue(cus_order);
 		}
 
 		void resetRestaurant(){
 			for(int i = 0; i < this->number_of_people;i++){
 				customer* out_res = this->current;
 				this->current = this->current->next;
-				delete[] out_res;
+				this->Order->resetOrder();
+				delete out_res;
 			}
 			this->number_of_people = 0;
 			this->current = nullptr;
@@ -395,6 +419,16 @@ class imp_res : public Restaurant
 			//Vào quán thôi
 			customer *cus = new customer (name, energy, nullptr, nullptr);
 			
+			//Nếu MAXSIZE = 1 thì cho nó vô ngồi luôn và nếu đã có khách ngồi thì đưa vào hàng đợi luôn
+			if(MAXSIZE == 1){
+				if(this->number_of_people == 1){
+					this->Queue->enqueue(cus);
+				}else{
+					this->SitWherever(cus);
+				}
+				return;
+			}
+
 			//Liệu số người vào được 1 nửa số lượng chỗ tối đa chưa
 			if(this->number_of_people >= MAXSIZE/2){
 				customer* tmpCus = current;
@@ -427,27 +461,35 @@ class imp_res : public Restaurant
 				}
 				return;
 			}
-			//Kiểm tra liệu liệu số khách hiện tại có bằng số khách tối đa chưa
-			if(this->number_of_people < MAXSIZE){
-				//Nếu chưa có khách nào thì khách đầu tiên muốn ngồi đâu cũng say yes	 
-				if(this->number_of_people == 0){		 
-					this->SitWherever(cus);
-				} else{
-					//Nếu energy của khách mới lớn hơn thì ngồi bên phải người vào trước đó
-					if(energy >= this->current->energy){
-						this->SitRight(cus);
-					}
-					//Và ngược lại
-					else{								 
-						this->SitLeft(cus);
-					}
+			//Nếu chưa có khách nào thì khách đầu tiên muốn ngồi đâu cũng say yes	 
+			if(this->number_of_people == 0){		 
+				this->SitWherever(cus);
+			} else{
+				//Nếu energy của khách mới lớn hơn thì ngồi bên phải người vào trước đó
+				if(energy >= this->current->energy){
+					this->SitRight(cus);
 				}
-			}else{	
-				//Đưa khách vào hàng đợi nếu chỗ đã đủ
-				this->Queue->enqueue(cus);
+				//Và ngược lại
+				else{								 
+					this->SitLeft(cus);
+				}
 			}
 
 		}
+
+		//Hàng đợi có người thì thêm vào không thì thôi
+		void Queue_to_Table(){
+			if(!this->Queue->empty() && this->number_of_people < MAXSIZE){
+				while(this->number_of_people < MAXSIZE && !this->Queue->empty()){
+					string na = this->Queue->get()->name;
+					int e = this->Queue->get()->energy;
+					this->RED(na,e);
+					this->Queue->dequeue();
+				}		
+			}
+			else{return;}			
+		}
+
 		void BLUE(int num)
 		{
 			if(num >= this->number_of_people){
@@ -471,23 +513,16 @@ class imp_res : public Restaurant
 					}while(out_res != this->current);
 				}
 			}
-			//Hàng đợi có người thì thêm vào không thì thôi
-			if(!this->Queue->empty() && this->number_of_people < MAXSIZE){
-				while(this->number_of_people < MAXSIZE && !this->Queue->empty()){
-					string na = this->Queue->get()->name;
-					int e = this->Queue->get()->energy;
-					this->RED(na,e);
-					this->Queue->dequeue();
-				}		
-			}
-			else{return;}
+			this->Queue_to_Table();
 		}
+
 		void PURPLE()
 		{
 			if(this->Queue->size() == 0 || this->Queue->size() == 1) return;
 			int N = this->Queue->SortCustomerQueue();
 			return this->BLUE(N%MAXSIZE);
 		}
+		
 		void REVERSAL()
 		{
 			
@@ -608,7 +643,8 @@ class imp_res : public Restaurant
 		{
 			int sum_yang = 0, sum_yin = 0;
 			customer* tmpCus = this->current;
-
+			
+			//Tính tổng năng lượng của oán linh và chú thuật sư
 			do{
 				if(tmpCus->energy > 0){
 					sum_yang += tmpCus->energy;
@@ -651,6 +687,7 @@ class imp_res : public Restaurant
 					}while(out_res != this->current);
 				}
 			}
+			this->Queue_to_Table();
 		}
 		void LIGHT(int num)
 		{
@@ -664,12 +701,12 @@ class imp_res : public Restaurant
 					tmpI->print();
 					tmpI = tmpI->next;
 				}
-				cout<<"---"<<endl;
-				customer* tmpCus = this->Order->get();
-				for(int i = 0;i < this->Order->size();i++){
-					tmpCus->print();
-					tmpCus = tmpCus->next;
-				}
+				// cout<<"---"<<endl;
+				// customer* tmpCus = this->Order->get();
+				// for(int i = 0;i < this->Order->size();i++){
+				// 	tmpCus->print();
+				// 	tmpCus = tmpCus->next;
+				// }
 			}
 			else{
 				for(int i = 0; i < this->number_of_people;i++){
