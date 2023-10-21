@@ -169,14 +169,17 @@ class imp_res : public Restaurant
 					for(int gap = len/2; gap > 0;gap /= 2){
 						for(int i = gap; i < len;i += 1){
 							int j = i;
+							
 							customer* tmpj = this->head;
 							for(int t = 0; t < j;t++){
 								tmpj = tmpj->next;\
 							}
+
 							customer* tmpj_sub_gap = this->head;
 							for(int t = 0; t < j-gap; t++){
 								tmpj_sub_gap = tmpj_sub_gap->next;
 							}
+							
 							while(abs(tmpj_sub_gap->energy) < abs(tmpj->energy) && j >= gap){
 								Swap2Cus(tmpj_sub_gap,tmpj);
 								times += 1;
