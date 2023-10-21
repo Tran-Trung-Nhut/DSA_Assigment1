@@ -1,255 +1,198 @@
 #include "main.h"
 
+class imp_res : public Restaurant
+{
+	public:
+		customer* current;
+		int number_of_people;
+		class queue{
+			private:
+				int count;
+				customer* head;
+				customer* tail;
+			public:
+				queue():head(nullptr),tail(nullptr),count(0){};
+				~queue();
 
-//Hàng đợi khi đã đầy bàn
-class queue{
-class ValueCustomer;
-private:
-	int count;
-	ValueCustomer* head;
-	ValueCustomer* tail;
-	friend class ValueCustomer;
-private:
-	class ValueCustomer{
-		public:
-			ValueCustomer* next;
-			ValueCustomer* prev;
-			int energy;
-			string name;
-		public:
-			ValueCustomer(int e, string na) : energy(e),name(na),next(nullptr),prev(nullptr){};
-			~ValueCustomer(){};
-	};
-public:
-	queue():head(nullptr),tail(nullptr),count(0){};
-	~queue();
-
-	int size(){
-		return this->count;
-	}
-	void enqueue(int e, string na){
-		ValueCustomer* cus = new ValueCustomer(e,na);
-		if(this->count < MAXSIZE){
-			if(this->count == 0){
-				this->head = cus;
-				this->tail = cus;
-				
-			}else{
-				cus->prev = this->tail;
-				this->tail->next = cus;
-				this->tail = cus;
-			}
-			this->count++;
-		}
-		else{
-			return;
-		}
-	}
-	void dequeue(){
-		if(this->count == 0) return;
-		ValueCustomer* cus = head;
-		this->head = this->head->next;
-		this->head->prev = nullptr;
-		this->count--;
-		delete cus;
-	}
-	
-	ValueCustomer* get(){
-		return this->head;
-	}
-
-	bool empty(){
-		return this->count == 0;
-	}
-
-	void Swap2Cus(ValueCustomer* cus1, ValueCustomer* cus2){
-		if(cus1 == this->head && cus2 == this->tail){
-			cus2->prev->next = cus1;
-			cus1->next->prev = cus2;
-			cus2->next = cus1->next;
-			cus1->next = nullptr;
-			this->head = cus2;
-			this->tail = cus1;
-			return;
-		}
-		if(cus1 == this->head){
-			if(cus1->next == cus2){
-				cus1->prev = cus2;
-				cus2->next->prev = cus1;
-				cus1->next = cus2->next;
-				cus2->prev = nullptr;
-				cus2->next = cus1;
-				this->head = cus2;
-				return;
-			}
-			cus1->next->prev = cus2;
-			cus2->next->prev = cus1;
-			cus2->prev->next = cus1;
-			ValueCustomer* tmp = cus1->next;
-			cus1->next = cus2->next;
-			cus1->prev = cus2->prev;
-			cus2->next = tmp;
-			this->head = cus2;
-			return;
-		}
-		if(cus2 == this->tail){
-			if(cus1->next == cus2){
-				cus2->next = cus1;
-				cus1->prev->next = cus2;
-				cus2->prev = cus1->prev;
-				cus1->prev = cus2;
-				cus1->next = nullptr;
-				this->tail = cus1;
-				return;
-			}
-			cus2->prev->next = cus1;
-			cus1->prev->next = cus2;
-			cus1->next->prev = cus2;
-			ValueCustomer* tmp = cus2->prev;
-			cus2->prev = cus1->prev;
-			cus2->next = cus1->next;
-			cus1->prev = tmp;
-			this->tail = cus1;
-			return;
-		}
-		if(cus1->next == cus2){
-			cus1->prev->next = cus2;
-			cus2->next->prev = cus1;
-			ValueCustomer* tmp1 = cus1;
-			ValueCustomer* tmp2 = cus1->prev;
-			cus1->next = cus2->next;
-			cus1->prev = cus2;
-			cus2->next = tmp1;
-			cus2->prev = tmp2;
-			return;
-		}
-		cus1->prev->next = cus2;
-		cus1->next->prev = cus2;
-		cus2->next->prev = cus1;
-		cus2->prev->next = cus1;
-		ValueCustomer* tmp1 = cus2->next;
-		ValueCustomer* tmp2 = cus2->prev;
-		cus2->next = cus1->next;
-		cus2->prev = cus1->prev;
-		cus1->prev = tmp2;
-		cus1->next = tmp1;
-	}
-
-	int SortCustomerQueue(){
-		if(this->count == 2){
-			this->tail = head;
-			this->head = this->head->next;
-			this->head->next = this->tail;
-			this->tail->prev = this->head;
-			return 1;
-		}
-
-		int times = 0;
-
-		int MaxValue = INT16_MIN;
-		ValueCustomer* tmpCus = this->head;
-		ValueCustomer* PosMax = nullptr;
-
-		//Tìm khách có giá trị tuyệt đối Energy lớn nhất 
-		for(int i = 0 ;i < this->count ;i++){
-			if(MaxValue <= abs(tmpCus->energy)){
-				MaxValue = abs(tmpCus->energy);
-				PosMax = tmpCus;
-			}
-			tmpCus = tmpCus->next;
-		}
-
-		//Tìm độ dài hàng đợi cần sắp xếp
-		tmpCus = this->head;
-		int len = 1;
-		while(tmpCus != PosMax){
-			len += 1;
-			tmpCus = tmpCus->next;
-		}
-
-		for(int gap = len/2; gap > 0;gap /= 2){
-			for(int i = gap; i < len;i += 1){
-				int j = i;
-				ValueCustomer* tmpj = this->head;
-				for(int t = 0; t < j;t++){
-					tmpj = tmpj->next;\
+				int size(){
+					return this->count;
 				}
-				ValueCustomer* tmpj_sub_gap = this->head;
-				for(int t = 0; t < j-gap; t++){
-					tmpj_sub_gap = tmpj_sub_gap->next;
-				}
-				while(abs(tmpj_sub_gap->energy) < abs(tmpj->energy) && j >= gap){
-					Swap2Cus(tmpj_sub_gap,tmpj);
-					times += 1;
-					j -= gap;
-					tmpj_sub_gap = this->head;
-					for(int t = 0; t < j-gap;t++){
-						tmpj_sub_gap = tmpj_sub_gap->next;
+
+				void enqueue(customer* cus){
+					if(this->count < MAXSIZE){
+						if(this->count == 0){
+							this->head = cus;
+							this->tail = cus;
+							
+						}else{
+							cus->prev = this->tail;
+							this->tail->next = cus;
+							this->tail = cus;
+						}
+						this->count++;
+					}
+					else{
+						return;
 					}
 				}
-			}
-		}
-		return times;
-	}
 
-	void print(){
-		ValueCustomer* tmpQ = head;
-		for(int i = 0; i < this->count;i++){
-			cout << tmpQ->name <<"-"<< tmpQ->energy<<endl;
-			tmpQ = tmpQ->next;
-		}
-	}
-};
+				void dequeue(){
+					if(this->count == 0) return;
+					if(this->count == 1){
+						delete this->head;
+						this->head = nullptr;
+						this->tail = nullptr;
+						count -= 1;
+						return;
+					}
+					customer* cus = this->head;
+					this->head = this->head->next;
+					this->head->prev = nullptr;
+					this->count--;
+					delete cus;
+				}
+				
 
-class Order{
-class Node;
-public:
-	Node* head;
-	Node* tail;
-	int count;
-private:
-	class Node{
-	public:
-		Node* next;
-		Node* prev;
-		string name;
-		int energy;
-		friend class Order;
-	public:
-		Node(string na, int e) : name(na),energy(e), next(nullptr){};
-		~Node(){};
-	};
-public:
+				customer* get(){
+					return this->head;
+				}
 
-	Order() : head(nullptr),tail(nullptr), count(0) {};
-	bool empty(){
-		return this->count == 0;
-	}
+				bool empty(){
+					return this->count == 0;
+				}
 
-	void enterRestaurant(string name, int energy){
-		Node* cus = new Node(name,energy);
-		if(count == 0){
-			this->head = cus;
-			this->tail = cus;
-		}else{
-			cus->prev = this->tail;
-			this->tail->next = cus;
-			this->tail = cus;
-		}
-		count += 1;
-	}
+				void Swap2Cus(customer* cus1, customer* cus2){
+					if(cus1 == this->head && cus2 == this->tail){
+						cus2->prev->next = cus1;
+						cus1->next->prev = cus2;
+						cus2->next = cus1->next;
+						cus1->next = nullptr;
+						this->head = cus2;
+						this->tail = cus1;
+						return;
+					}
+					if(cus1 == this->head){
+						if(cus1->next == cus2){
+							cus1->prev = cus2;
+							cus2->next->prev = cus1;
+							cus1->next = cus2->next;
+							cus2->prev = nullptr;
+							cus2->next = cus1;
+							this->head = cus2;
+							return;
+						}
+						cus1->next->prev = cus2;
+						cus2->next->prev = cus1;
+						cus2->prev->next = cus1;
+						customer* tmp = cus1->next;
+						cus1->next = cus2->next;
+						cus1->prev = cus2->prev;
+						cus2->next = tmp;
+						this->head = cus2;
+						return;
+					}
+					if(cus2 == this->tail){
+						if(cus1->next == cus2){
+							cus2->next = cus1;
+							cus1->prev->next = cus2;
+							cus2->prev = cus1->prev;
+							cus1->prev = cus2;
+							cus1->next = nullptr;
+							this->tail = cus1;
+							return;
+						}
+						cus2->prev->next = cus1;
+						cus1->prev->next = cus2;
+						cus1->next->prev = cus2;
+						customer* tmp = cus2->prev;
+						cus2->prev = cus1->prev;
+						cus2->next = cus1->next;
+						cus1->prev = tmp;
+						this->tail = cus1;
+						return;
+					}
+					if(cus1->next == cus2){
+						cus1->prev->next = cus2;
+						cus2->next->prev = cus1;
+						customer* tmp1 = cus1;
+						customer* tmp2 = cus1->prev;
+						cus1->next = cus2->next;
+						cus1->prev = cus2;
+						cus2->next = tmp1;
+						cus2->prev = tmp2;
+						return;
+					}
+					cus1->prev->next = cus2;
+					cus1->next->prev = cus2;
+					cus2->next->prev = cus1;
+					cus2->prev->next = cus1;
+					customer* tmp1 = cus2->next;
+					customer* tmp2 = cus2->prev;
+					cus2->next = cus1->next;
+					cus2->prev = cus1->prev;
+					cus1->prev = tmp2;
+					cus1->next = tmp1;
+				}
 
-	void outRestaurant(){
-		if(this->count == 0) return;
-		Node* cus = head;
-		this->head = this->head->next;
-		this->count--;
-		delete cus;
-	}
+				int SortCustomerQueue(){
+					if(this->count == 2){
+						this->tail = head;
+						this->head = this->head->next;
+						this->head->next = this->tail;
+						this->tail->prev = this->head;
+						return 1;
+					}
 
-	//Còn hay hết oán linh
+					int times = 0;
+
+					int MaxValue = INT16_MIN;
+					customer* tmpCus = this->head;
+					customer* PosMax = nullptr;
+
+					//Tìm khách có giá trị tuyệt đối Energy lớn nhất 
+					for(int i = 0 ;i < this->count ;i++){
+						if(MaxValue <= abs(tmpCus->energy)){
+							MaxValue = abs(tmpCus->energy);
+							PosMax = tmpCus;
+						}
+						tmpCus = tmpCus->next;
+					}
+
+					//Tìm độ dài hàng đợi cần sắp xếp
+					tmpCus = this->head;
+					int len = 1;
+					while(tmpCus != PosMax){
+						len += 1;
+						tmpCus = tmpCus->next;
+					}
+
+					for(int gap = len/2; gap > 0;gap /= 2){
+						for(int i = gap; i < len;i += 1){
+							int j = i;
+							customer* tmpj = this->head;
+							for(int t = 0; t < j;t++){
+								tmpj = tmpj->next;\
+							}
+							customer* tmpj_sub_gap = this->head;
+							for(int t = 0; t < j-gap; t++){
+								tmpj_sub_gap = tmpj_sub_gap->next;
+							}
+							while(abs(tmpj_sub_gap->energy) < abs(tmpj->energy) && j >= gap){
+								Swap2Cus(tmpj_sub_gap,tmpj);
+								times += 1;
+								j -= gap;
+								tmpj_sub_gap = this->head;
+								for(int t = 0; t < j-gap;t++){
+									tmpj_sub_gap = tmpj_sub_gap->next;
+								}
+							}
+						}
+					}
+					return times;
+				}
+
 	bool isOutofYin(){
-		Node* tmpCus = tail;
+		customer* tmpCus = tail;
 		for(int i = 0; i < this->count;i++){
 			if(tmpCus->energy < 0){
 				return false;
@@ -261,7 +204,7 @@ public:
 
 	//Trả về tên của oán linh tới đây gần nhất
 	string r_outYin(){
-		Node* tmpCus = tail;
+		customer* tmpCus = tail;
 		string na;
 		for(int i = 0; i < this->count; i++){
 			if(tmpCus->energy < 0){
@@ -287,7 +230,7 @@ public:
 
 	//Còn hay hết chú thuật sư
 	bool isOutofYang(){
-		Node* tmpCus = tail;
+		customer* tmpCus = tail;
 		for(int i = 0; i < this->count;i++){
 			if(tmpCus->energy > 0){
 				return false;
@@ -299,7 +242,7 @@ public:
 
 	//Trả về tên của chú thuật sư đến gần đây nhất
 	string r_outYang(){
-		Node* tmpCus = tail;
+		customer* tmpCus = tail;
 		string na;
 		for(int i = 0; i < this->count; i++){
 			if(tmpCus->energy > 0){
@@ -323,24 +266,28 @@ public:
 		return "";
 	}
 
-	string get_cus(){
-		return head->name;
+	void resetOrder(){
+		for(int i = 0; i < this->count; i++){
+			customer* out_order = this->head;
+			this->head = this->head->next;
+			delete out_order;
+		}
+		this->head = nullptr;
+		this->tail = nullptr;
+		this->count = 0;
 	}
 
-	int size(){
-		return count;
+	void print(){
+		customer* tmpQ = head;
+		for(int i = 0; i < this->count;i++){
+			cout << tmpQ->name <<"-"<< tmpQ->energy<<endl;
+			tmpQ = tmpQ->next;
+		}
 	}
-};
-
-
-class imp_res : public Restaurant
-{
+	};
 	public:
-		customer* current;
-		int number_of_people;
-	public:
-		queue* cusQueue = new queue();
-		Order* ValueOrder = new Order();
+		queue* Queue = new queue();
+		queue* Order = new queue();
 	public:
 
 		imp_res() : current(nullptr), number_of_people(0) {};
@@ -380,13 +327,16 @@ class imp_res : public Restaurant
 			}
 		}	
 
-		void SitWherever (customer* cus, string name, int energy){
+		void SitWherever (customer* cus){
 			this->current = cus;
+			this->current->next = cus;
+			this->current->prev = cus;
 			this->number_of_people += 1;
-			this->ValueOrder->enterRestaurant(name,energy);
+			customer* cus_order = new customer(cus->name,cus->energy,nullptr,nullptr);
+			this->Order->enqueue(cus_order);
 		}
 
-		void SitRight(customer* cus, string name, int energy){
+		void SitRight(customer* cus){
 			cus->prev = this->current;
 			if(this->number_of_people == 1){
 				this->current->next = cus;
@@ -399,10 +349,11 @@ class imp_res : public Restaurant
 			}
 			this->current = cus;
 			this->number_of_people += 1;
-			ValueOrder->enterRestaurant(name, energy);
+			customer* cus_order = new customer(cus->name,cus->energy,nullptr,nullptr);
+			this->Order->enqueue(cus_order);
 		}
 
-		void SitLeft(customer* cus, string name,int energy){
+		void SitLeft(customer* cus){
 			cus->next = this->current;
 			if(this->number_of_people == 1){
 				
@@ -416,14 +367,16 @@ class imp_res : public Restaurant
 			}
 			this->current = cus;
 			this->number_of_people += 1;
-			ValueOrder->enterRestaurant(name,energy);
+			customer* cus_order = new customer(cus->name,cus->energy,nullptr,nullptr);
+			this->Order->enqueue(cus_order);
 		}
 
 		void resetRestaurant(){
 			for(int i = 0; i < this->number_of_people;i++){
 				customer* out_res = this->current;
 				this->current = this->current->next;
-				delete[] out_res;
+				this->Order->resetOrder();
+				delete out_res;
 			}
 			this->number_of_people = 0;
 			this->current = nullptr;
@@ -466,6 +419,16 @@ class imp_res : public Restaurant
 			//Vào quán thôi
 			customer *cus = new customer (name, energy, nullptr, nullptr);
 			
+			//Nếu MAXSIZE = 1 thì cho nó vô ngồi luôn và nếu đã có khách ngồi thì đưa vào hàng đợi luôn
+			if(MAXSIZE == 1){
+				if(this->number_of_people == 1){
+					this->Queue->enqueue(cus);
+				}else{
+					this->SitWherever(cus);
+				}
+				return;
+			}
+
 			//Liệu số người vào được 1 nửa số lượng chỗ tối đa chưa
 			if(this->number_of_people >= MAXSIZE/2){
 				customer* tmpCus = current;
@@ -481,46 +444,52 @@ class imp_res : public Restaurant
 				RES = energy - tmpCus->energy;
 				if(this->number_of_people < MAXSIZE){	
 					if(this->number_of_people == 0){		 
-						this->SitWherever(cus, name,energy);
+						this->SitWherever(cus);
 					} else{
 						//Nếu chênh lệch sức mạnh nhiều nhất là số dương thì ngồi phải
 						if(RES > 0){ 
-							this->SitRight(cus,name,energy);
+							this->SitRight(cus);
 						}
 						//Ngược lại
 						else{								
-							this->SitLeft(cus,name,energy);
+							this->SitLeft(cus);
 						}
 					};
 				}else{
 					//Đưa khác vào hàng đợi nếu chỗ đã đủ											
-					this->cusQueue->enqueue(cus->energy,cus->name);
-					delete cus;
+					this->Queue->enqueue(cus);
 				}
 				return;
 			}
-			//Kiểm tra liệu liệu số khách hiện tại có bằng số khách tối đa chưa
-			if(this->number_of_people < MAXSIZE){
-				//Nếu chưa có khách nào thì khách đầu tiên muốn ngồi đâu cũng say yes	 
-				if(this->number_of_people == 0){		 
-					this->SitWherever(cus, name, energy);
-				} else{
-					//Nếu energy của khách mới lớn hơn thì ngồi bên phải người vào trước đó
-					if(energy >= this->current->energy){
-						this->SitRight(cus, name, energy);
-					}
-					//Và ngược lại
-					else{								 
-						this->SitLeft(cus, name, energy);
-					}
+			//Nếu chưa có khách nào thì khách đầu tiên muốn ngồi đâu cũng say yes	 
+			if(this->number_of_people == 0){		 
+				this->SitWherever(cus);
+			} else{
+				//Nếu energy của khách mới lớn hơn thì ngồi bên phải người vào trước đó
+				if(energy >= this->current->energy){
+					this->SitRight(cus);
 				}
-			}else{	
-				//Đưa khách vào hàng đợi nếu chỗ đã đủ
-				this->cusQueue->enqueue(cus->energy,cus->name);
-				delete cus;
+				//Và ngược lại
+				else{								 
+					this->SitLeft(cus);
+				}
 			}
 
 		}
+
+		//Hàng đợi có người thì thêm vào không thì thôi
+		void Queue_to_Table(){
+			if(!this->Queue->empty() && this->number_of_people < MAXSIZE){
+				while(this->number_of_people < MAXSIZE && !this->Queue->empty()){
+					string na = this->Queue->get()->name;
+					int e = this->Queue->get()->energy;
+					this->RED(na,e);
+					this->Queue->dequeue();
+				}		
+			}
+			else{return;}			
+		}
+
 		void BLUE(int num)
 		{
 			if(num >= this->number_of_people){
@@ -530,13 +499,13 @@ class imp_res : public Restaurant
 				for(int i = 0 ;i < num;i++){
 					do{
 						//Tìm người đến trước nhất để xóa
-						if(out_res->name == this->ValueOrder->get_cus()){
+						if(out_res->name == this->Order->get()->name){
 							if(out_res->energy > 0){
 								this->Yang_out(out_res);
 							}else{
 								this->Yin_out(out_res);
 							}
-							this->ValueOrder->outRestaurant();
+							this->Order->dequeue();
 							out_res = this->current;
 						}else{
 							out_res = out_res->next;
@@ -544,23 +513,16 @@ class imp_res : public Restaurant
 					}while(out_res != this->current);
 				}
 			}
-			//Hàng đợi có người thì thêm vào không thì thôi
-			if(!this->cusQueue->empty() && this->number_of_people < MAXSIZE){
-				while(this->number_of_people < MAXSIZE && !this->cusQueue->empty()){
-					string na = this->cusQueue->get()->name;
-					int e = this->cusQueue->get()->energy;
-					this->RED(na,e);
-					this->cusQueue->dequeue();
-				}		
-			}
-			else{return;}
+			this->Queue_to_Table();
 		}
+
 		void PURPLE()
 		{
-			if(this->cusQueue->size() == 0 || this->cusQueue->size() == 1) return;
-			int N = this->cusQueue->SortCustomerQueue();
+			if(this->Queue->size() == 0 || this->Queue->size() == 1) return;
+			int N = this->Queue->SortCustomerQueue();
 			return this->BLUE(N%MAXSIZE);
 		}
+		
 		void REVERSAL()
 		{
 			
@@ -681,7 +643,8 @@ class imp_res : public Restaurant
 		{
 			int sum_yang = 0, sum_yin = 0;
 			customer* tmpCus = this->current;
-
+			
+			//Tính tổng năng lượng của oán linh và chú thuật sư
 			do{
 				if(tmpCus->energy > 0){
 					sum_yang += tmpCus->energy;
@@ -694,8 +657,8 @@ class imp_res : public Restaurant
 			if(sum_yang == abs(sum_yin)){
 				this->resetRestaurant();
 			}else if(sum_yang > abs(sum_yin)){
-				while(!this->ValueOrder->isOutofYin()){
-					string Yin_name = this->ValueOrder->r_outYin();
+				while(!this->Order->isOutofYin()){
+					string Yin_name = this->Order->r_outYin();
 					customer* out_res = this->current;
 					
 					do{
@@ -709,8 +672,8 @@ class imp_res : public Restaurant
 					}while(out_res != this->current);
 				}
 			}else{
-				while(!this->ValueOrder->isOutofYang()){
-					string Yang_name = this->ValueOrder->r_outYang();
+				while(!this->Order->isOutofYang()){
+					string Yang_name = this->Order->r_outYang();
 					customer* out_res = this->current;
 					
 					do{
@@ -724,11 +687,12 @@ class imp_res : public Restaurant
 					}while(out_res != this->current);
 				}
 			}
+			this->Queue_to_Table();
 		}
 		void LIGHT(int num)
 		{
 			if(num == 0){
-				this->cusQueue->print();
+				this->Queue->print();
 				return;
 			}
 			customer* tmpI = this->current;
@@ -737,6 +701,12 @@ class imp_res : public Restaurant
 					tmpI->print();
 					tmpI = tmpI->next;
 				}
+				// cout<<"---"<<endl;
+				// customer* tmpCus = this->Order->get();
+				// for(int i = 0;i < this->Order->size();i++){
+				// 	tmpCus->print();
+				// 	tmpCus = tmpCus->next;
+				// }
 			}
 			else{
 				for(int i = 0; i < this->number_of_people;i++){
