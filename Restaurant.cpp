@@ -528,7 +528,8 @@ class imp_res : public Restaurant
 		
 		void REVERSAL()
 		{
-			
+			if(this->number_of_people == 0 || this->number_of_people == 1) return;
+
 			customer* cusStart_yin = this->current;
 			customer* cusEnd_yin = this->current->next;
 			customer* cusStart_yang = this->current;
@@ -607,17 +608,20 @@ class imp_res : public Restaurant
 			for(int i = 0; i < this->number_of_people - 3;i++){
 				customer* tmpCus2 = tmpCus;
 				int tmp = 0, tmpValue = 0, tmplen = 4;
+
 				do{
 					tmpValue += tmpCus2->energy;
 					tmpCus2 = tmpCus2->next;
 					tmp += 1;
 				}while(tmp < 4 && tmpCus2 != this->current);
+
 				if(tmpValue < smallestValue){
 					smallestValue = tmpValue;
 					start = tmpCus;
 					end = tmpCus2;
 					maxlen = 4;
 				}
+				
 				while(tmpCus2 != this->current){
 					tmpValue += tmpCus2->energy;
 					tmplen += 1;
@@ -644,6 +648,8 @@ class imp_res : public Restaurant
 		}
 		void DOMAIN_EXPANSION()
 		{
+			if(this->number_of_people == 0 || this->number_of_people == 1){return;}
+
 			int sum_yang = 0, sum_yin = 0;
 			customer* tmpCus = this->current;
 			
