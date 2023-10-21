@@ -378,9 +378,9 @@ class imp_res : public Restaurant
 			for(int i = 0; i < this->number_of_people;i++){
 				customer* out_res = this->current;
 				this->current = this->current->next;
-				this->Order->resetOrder();
 				delete out_res;
 			}
+			this->Order->resetOrder();
 			this->number_of_people = 0;
 			this->current = nullptr;
 		}
