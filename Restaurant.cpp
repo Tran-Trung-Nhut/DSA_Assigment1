@@ -434,7 +434,7 @@ class imp_res : public Restaurant
 
 			//Liệu số người vào được 1 nửa số lượng chỗ tối đa chưa
 			if(this->number_of_people >= MAXSIZE/2){
-				customer* tmpCus = current;
+				customer* tmpCus = this->current;
 				int RES = INT16_MIN;
 				for(int i = 0;i < this->number_of_people;i++){
 					if(RES < abs(energy - tmpCus->energy)){
@@ -444,7 +444,7 @@ class imp_res : public Restaurant
 					tmpCus = tmpCus->next;
 				}
 				
-				RES = energy - tmpCus->energy;
+				RES = energy - this->current->energy;
 				if(this->number_of_people < MAXSIZE){	
 					if(this->number_of_people == 0){		 
 						this->SitWherever(cus);
