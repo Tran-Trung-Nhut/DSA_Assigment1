@@ -186,7 +186,7 @@ class imp_res : public Restaurant
 							
 							customer* tmpj = this->head;
 							for(int t = 0; t < j;t++){
-								tmpj = tmpj->next;\
+								tmpj = tmpj->next;
 							}
 
 							customer* tmpj_sub_gap = this->head;
@@ -238,6 +238,14 @@ class imp_res : public Restaurant
 		string na;
 		for(int i = 0; i < this->count; i++){
 			if(tmpCus->energy < 0){
+				if(this->count == 1){
+					na = this->head->name;
+					delete this->head;
+					this->head = nullptr;
+					this->tail = nullptr;
+					this->count = 0;
+					return na;
+				}
 				if(tmpCus == this->tail){
 					tmpCus->prev->next = nullptr;
 					this->tail = tmpCus->prev;
@@ -264,6 +272,14 @@ class imp_res : public Restaurant
 		string na;
 		for(int i = 0; i < this->count; i++){
 			if(tmpCus->energy > 0){
+				if(this->count == 1){
+					na = this->head->name;
+					delete this->head;
+					this->head = nullptr;
+					this->tail = nullptr;
+					this->count = 0;
+					return na;
+				}
 				if(tmpCus == this->tail){
 					tmpCus->prev->next = nullptr;
 					this->tail = tmpCus->prev;
@@ -788,7 +804,8 @@ class imp_res : public Restaurant
 			customer* start = nullptr;
 			customer* end = nullptr;
 			int smallestValue = INT16_MAX, maxlen = 4;
-			for(int i = 0; i < this->number_of_people - 3;i++){
+
+			for(int i = 0; i < this->number_of_people;i++){
 				customer* tmpCus2 = tmpCus;
 				int tmp = 0, tmpValue = 0, tmplen = 4;
 
@@ -796,23 +813,34 @@ class imp_res : public Restaurant
 					tmpValue += tmpCus2->energy;
 					tmpCus2 = tmpCus2->next;
 					tmp += 1;
-				}while(tmp < 4 && tmpCus2 != this->current);
+				}while(tmp < 4);
 
 				if(tmpValue < smallestValue){
 					smallestValue = tmpValue;
 					start = tmpCus;
-					end = tmpCus2;
+					end = tmpCus2->prev;
 					maxlen = 4;
+				}else if(tmpValue == smallestValue && tmplen == maxlen){
+					start = tmpCus;
+					end = tmpCus2->prev;
 				}
 				
-				while(tmpCus2 != this->current){
+				while(tmpCus2 != tmpCus){
+					
 					tmpValue += tmpCus2->energy;
 					tmplen += 1;
+
 					if(smallestValue == tmpValue && tmplen > maxlen){
 						maxlen = tmplen;
 						start = tmpCus;
 						end = tmpCus2;
 					}
+
+					if(smallestValue == tmpValue && tmplen == maxlen){
+						start = tmpCus;
+						end = tmpCus2;
+					}
+
 					if(tmpValue < smallestValue){
 						smallestValue = tmpValue;
 						maxlen = tmplen;
@@ -823,10 +851,29 @@ class imp_res : public Restaurant
 				}
 				tmpCus = tmpCus->next;
 			}
-			//in  ra đến end thì dừng lại
-			while(start != end->next){
-				start->print();
-				start = start->next;
+
+			//Tìm khách hàng có energy nhỏ nhất trong dãy
+			customer* smallest_cus = start;
+			customer* store_cus = start;
+			for(int i = 0; i < maxlen;i++){
+				if(store_cus->energy < smallest_cus->energy){
+					smallest_cus = store_cus;
+				}
+				store_cus = store_cus->next;
+			}
+
+			//in  từ khách hàng có giá trị nhỏ nhất cho tới khác hàng cuối
+			store_cus = smallest_cus;
+			do{
+				store_cus->print();
+				store_cus = store_cus->next;
+			}while(store_cus != end->next);
+
+			//in từ khách hàng đầu tới khách hàng có giá trị nhỏ nhất
+			store_cus = start;
+			while(store_cus != smallest_cus){
+				store_cus->print();
+				store_cus = store_cus->next;
 			}
 		}
 		void DOMAIN_EXPANSION()
