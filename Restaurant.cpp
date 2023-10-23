@@ -288,8 +288,16 @@ class imp_res : public Restaurant
 	void r_outYin(){
 		customer* tmpCus = tail;
 		int tmp = this->count;
-		for(int i = 0; i < tmp || tmpCus != nullptr; i++){
+		for(int i = 0; i < tmp && tmpCus != nullptr; i++){
 			if(tmpCus->energy < 0){
+				if(this->count == 1){
+					this->head->print();
+					delete this->head;
+					this->head = nullptr;
+					this->tail = nullptr;
+					this->count = 0;
+					return;
+				}
 				if(tmpCus == this->tail){
 					tmpCus->prev->next = nullptr;
 					this->tail = tmpCus->prev;
@@ -315,8 +323,16 @@ class imp_res : public Restaurant
 	void r_outYang(){
 		customer* tmpCus = tail;
 		int tmp = this->count;
-		for(int i = 0; i < tmp || tmpCus != nullptr; i++){
+		for(int i = 0; i < tmp && tmpCus != nullptr; i++){
 			if(tmpCus->energy > 0){
+				if(this->count == 1){
+					this->head->print();
+					delete this->head;
+					this->head = nullptr;
+					this->tail = nullptr;
+					this->count = 0;
+					return;
+				}
 				if(tmpCus == this->tail){
 					tmpCus->prev->next = nullptr;
 					this->tail = tmpCus->prev;
@@ -817,29 +833,31 @@ class imp_res : public Restaurant
 		{
 			if(this->number_of_people == 0){return;}
 
-			int sum_yang = 0, sum = 0;
+			int sum_yang = 0, sum_yin = 0;
 			customer* tmpCus = this->current;
 			
-			//Tính tổng năng lượng của chú thuật sư và tổng năng lượng toàn bộ khách trong bàn
+			//Tính tổng năng lượng của chú thuật sư và tổng năng lượng của oán linh trong bàn
 			do{
 				if(tmpCus->energy > 0){
 					sum_yang += tmpCus->energy;
+				}else{
+					sum_yin += tmpCus->energy;
 				}
-				sum += tmpCus->energy;
 				tmpCus = tmpCus->next;
 			}while(tmpCus != this->current);
 
-			//Tổng năng lượng
+			//Tổng năng lượng của chú thuật sư và tổng năng lượng của oán linh trong hàng đợi
 			tmpCus = this->Queue->get();
 			for(int i = 0; i < this->Queue->size();i++){
 				if(tmpCus->energy >  0){
 					sum_yang += tmpCus->energy;
+				}else{
+					sum_yin += tmpCus->energy;
 				}
-				sum += tmpCus->energy;
 				tmpCus = tmpCus->next;
 			}
 
-			if(sum_yang >= abs(sum)){
+			if(sum_yang >= abs(sum_yin)){
 				this->Queue->r_outYin();
 				while(!this->Order->isOutofYin()){
 					string Yin_name = this->Order->r_outYin_onlyOne();
