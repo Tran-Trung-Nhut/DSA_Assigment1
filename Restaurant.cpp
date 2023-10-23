@@ -75,7 +75,7 @@ class imp_res : public Restaurant
 					return this->count == 0;
 				}
 
-				void Swap2Cus(customer* cus1, customer* cus2){
+				void Swap_in_Queue(customer* cus1, customer* cus2){
 					if(cus1 == this->head && cus2 == this->tail){
 						cus2->prev->next = cus1;
 						cus1->next->prev = cus2;
@@ -195,7 +195,7 @@ class imp_res : public Restaurant
 							}
 							
 							while(abs(tmpj_sub_gap->energy) < abs(tmpj->energy) && j >= gap){
-								Swap2Cus(tmpj_sub_gap,tmpj);
+								Swap_in_Queue(tmpj_sub_gap,tmpj);
 								times += 1;
 								j -= gap;
 								tmpj_sub_gap = this->head;
@@ -208,195 +208,288 @@ class imp_res : public Restaurant
 					return times;
 				}
 	
-	//Còn oán linh hay không nhỉ?
-	bool isOutofYin(){
-		customer* tmpCus = tail;
-		for(int i = 0; i < this->count;i++){
-			if(tmpCus->energy < 0){
-				return false;
+			//Còn oán linh hay không nhỉ?
+			bool Out_of_Yin_cus(){
+				customer* tmpCus = tail;
+				for(int i = 0; i < this->count;i++){
+					if(tmpCus->energy < 0){
+						return false;
+					}
+					tmpCus = tmpCus->prev;
+				}
+				return true;
 			}
-			tmpCus = tmpCus->prev;
-		}
-		return true;
-	}
 
-	//Còn chú thuật sư không ta
-	bool isOutofYang(){
-		customer* tmpCus = tail;
-		for(int i = 0; i < this->count;i++){
-			if(tmpCus->energy > 0){
-				return false;
+			//Còn chú thuật sư không ta
+			bool Out_of_Yang_cus(){
+				customer* tmpCus = tail;
+				for(int i = 0; i < this->count;i++){
+					if(tmpCus->energy > 0){
+						return false;
+					}
+					tmpCus = tmpCus->prev;
+				}
+				return true;
 			}
-			tmpCus = tmpCus->prev;
-		}
-		return true;
-	}
 
-	//Loại bỏ oán linh vô trễ nhất trả về tên của nó
-	string r_outYin_onlyOne(){
-		customer* tmpCus = tail;
-		string na;
-		for(int i = 0; i < this->count; i++){
-			if(tmpCus->energy < 0){
-				if(this->count == 1){
-					na = this->head->name;
-					delete this->head;
-					this->head = nullptr;
-					this->tail = nullptr;
-					this->count = 0;
-					return na;
+			//Loại bỏ oán linh vô trễ nhất trả về tên của nó
+			string Delete_one_Yin_with_print(){
+				customer* tmpCus = tail;
+				string na;
+				for(int i = 0; i < this->count; i++){
+					if(tmpCus->energy < 0){
+						if(this->count == 1){
+							na = this->head->name;
+							delete this->head;
+							this->head = nullptr;
+							this->tail = nullptr;
+							this->count = 0;
+							return na;
+						}
+						if(tmpCus == this->tail){
+							tmpCus->prev->next = nullptr;
+							this->tail = tmpCus->prev;
+						}else if(tmpCus == this->head){
+							tmpCus->next->prev = nullptr;
+							this->head = tmpCus->next;
+						}else{
+							tmpCus->prev->next = tmpCus->next;
+							tmpCus->next->prev = tmpCus->prev;
+						}
+						na = tmpCus->name;
+						delete tmpCus;
+						this->count--;
+						return na;
+					}
+					tmpCus = tmpCus->prev;
 				}
-				if(tmpCus == this->tail){
-					tmpCus->prev->next = nullptr;
-					this->tail = tmpCus->prev;
-				}else if(tmpCus == this->head){
-					tmpCus->next->prev = nullptr;
-					this->head = tmpCus->next;
-				}else{
-					tmpCus->prev->next = tmpCus->next;
-					tmpCus->next->prev = tmpCus->prev;
-				}
-				na = tmpCus->name;
-				delete tmpCus;
-				this->count--;
-				return na;
+				return "";
 			}
-			tmpCus = tmpCus->prev;
-		}
-		return "";
-	}
 
-	//Loại bỏ thằng thuật sư vào trễ nhất trả về tên của nó
-	string r_outYang_onlyOne(){
-		customer* tmpCus = tail;
-		string na;
-		for(int i = 0; i < this->count; i++){
-			if(tmpCus->energy > 0){
-				if(this->count == 1){
-					na = this->head->name;
-					delete this->head;
-					this->head = nullptr;
-					this->tail = nullptr;
-					this->count = 0;
-					return na;
+			//Loại bỏ thằng thuật sư vào trễ nhất trả về tên của nó
+			string Delete_one_Yang_with_print(){
+				customer* tmpCus = tail;
+				string na;
+				for(int i = 0; i < this->count; i++){
+					if(tmpCus->energy > 0){
+						if(this->count == 1){
+							na = this->head->name;
+							delete this->head;
+							this->head = nullptr;
+							this->tail = nullptr;
+							this->count = 0;
+							return na;
+						}
+						if(tmpCus == this->tail){
+							tmpCus->prev->next = nullptr;
+							this->tail = tmpCus->prev;
+						}else if(tmpCus == this->head){
+							tmpCus->next->prev = nullptr;
+							this->head = tmpCus->next;
+						}else{
+							tmpCus->prev->next = tmpCus->next;
+							tmpCus->next->prev = tmpCus->prev;
+						}
+						na = tmpCus->name;
+						delete tmpCus;
+						this->count--;
+						return na;
+					}
+					tmpCus = tmpCus->prev;
 				}
-				if(tmpCus == this->tail){
-					tmpCus->prev->next = nullptr;
-					this->tail = tmpCus->prev;
-				}else if(tmpCus == this->head){
-					tmpCus->next->prev = nullptr;
-					this->head = tmpCus->next;
-				}else{
-					tmpCus->prev->next = tmpCus->next;
-					tmpCus->next->prev = tmpCus->prev;
-				}
-				na = tmpCus->name;
-				delete tmpCus;
-				this->count--;
-				return na;
+				return "";
 			}
-			tmpCus = tmpCus->prev;
-		}
-		return "";
-	}
 
-	//Trả về tên của oán linh tới đây gần nhất
-	void r_outYin(){
-		customer* tmpCus = tail;
-		int tmp = this->count;
-		for(int i = 0; i < tmp && tmpCus != nullptr; i++){
-			if(tmpCus->energy < 0){
-				if(this->count == 1){
-					this->head->print();
-					delete this->head;
-					this->head = nullptr;
-					this->tail = nullptr;
-					this->count = 0;
-					return;
+			//Trả về tên của oán linh tới đây gần nhất
+			void Delete_all_yin_with_print(){
+				customer* tmpCus = tail;
+				int tmp = this->count;
+				for(int i = 0; i < tmp && tmpCus != nullptr; i++){
+					if(tmpCus->energy < 0){
+						if(this->count == 1){
+							this->head->print();
+							delete this->head;
+							this->head = nullptr;
+							this->tail = nullptr;
+							this->count = 0;
+							return;
+						}
+						if(tmpCus == this->tail){
+							tmpCus->prev->next = nullptr;
+							this->tail = tmpCus->prev;
+						}else if(tmpCus == this->head){
+							tmpCus->next->prev = nullptr;
+							this->head = tmpCus->next;
+						}else{
+							tmpCus->prev->next = tmpCus->next;
+							tmpCus->next->prev = tmpCus->prev;
+						}
+						tmpCus->print();
+						customer* deleteNode = tmpCus;
+						tmpCus = tmpCus->prev;
+						delete deleteNode;
+						this->count--;
+					}else{
+					tmpCus = tmpCus->prev;
+					}
 				}
-				if(tmpCus == this->tail){
-					tmpCus->prev->next = nullptr;
-					this->tail = tmpCus->prev;
-				}else if(tmpCus == this->head){
-					tmpCus->next->prev = nullptr;
-					this->head = tmpCus->next;
-				}else{
-					tmpCus->prev->next = tmpCus->next;
-					tmpCus->next->prev = tmpCus->prev;
-				}
-				tmpCus->print();
-				customer* deleteNode = tmpCus;
-				tmpCus = tmpCus->prev;
-				delete deleteNode;
-				this->count--;
-			}else{
-			tmpCus = tmpCus->prev;
 			}
-		}
-	}
 
-	//Trả về tên của chú thuật sư đến gần đây nhất
-	void r_outYang(){
-		customer* tmpCus = tail;
-		int tmp = this->count;
-		for(int i = 0; i < tmp && tmpCus != nullptr; i++){
-			if(tmpCus->energy > 0){
-				if(this->count == 1){
-					this->head->print();
-					delete this->head;
-					this->head = nullptr;
-					this->tail = nullptr;
-					this->count = 0;
-					return;
+			void Delete_all_yin(){
+				customer* tmpCus = tail;
+				int tmp = this->count;
+				for(int i = 0; i < tmp && tmpCus != nullptr; i++){
+					if(tmpCus->energy < 0){
+						if(this->count == 1){
+							delete this->head;
+							this->head = nullptr;
+							this->tail = nullptr;
+							this->count = 0;
+							return;
+						}
+						if(tmpCus == this->tail){
+							tmpCus->prev->next = nullptr;
+							this->tail = tmpCus->prev;
+						}else if(tmpCus == this->head){
+							tmpCus->next->prev = nullptr;
+							this->head = tmpCus->next;
+						}else{
+							tmpCus->prev->next = tmpCus->next;
+							tmpCus->next->prev = tmpCus->prev;
+						}
+						customer* deleteNode = tmpCus;
+						tmpCus = tmpCus->prev;
+						delete deleteNode;
+						this->count--;
+					}else{
+					tmpCus = tmpCus->prev;
+					}
 				}
-				if(tmpCus == this->tail){
-					tmpCus->prev->next = nullptr;
-					this->tail = tmpCus->prev;
-				}else if(tmpCus == this->head){
-					tmpCus->next->prev = nullptr;
-					this->head = tmpCus->next;
-				}else{
-					tmpCus->prev->next = tmpCus->next;
-					tmpCus->next->prev = tmpCus->prev;
-				}
-				tmpCus->print();
-				customer* deleteNode = tmpCus;
-				tmpCus = tmpCus->prev;
-				delete deleteNode;
-				this->count--;
-			}else{
-			tmpCus = tmpCus->prev;
 			}
-		}
-	}
 
-	void reset_without_print(){
-		for(int i = 0; i < this->count; i++){
-			customer* out_queue = this->tail;
-			this->tail = this->tail->prev;
-			delete out_queue;
-		}
-		this->head = nullptr;
-		this->tail = nullptr;
-		this->count = 0;
-	}
+			//Trả về tên của chú thuật sư đến gần đây nhất
+			void Delete_all_yang_with_print(){
+				customer* tmpCus = tail;
+				int tmp = this->count;
+				for(int i = 0; i < tmp && tmpCus != nullptr; i++){
+					if(tmpCus->energy > 0){
+						if(this->count == 1){
+							this->head->print();
+							delete this->head;
+							this->head = nullptr;
+							this->tail = nullptr;
+							this->count = 0;
+							return;
+						}
+						if(tmpCus == this->tail){
+							tmpCus->prev->next = nullptr;
+							this->tail = tmpCus->prev;
+						}else if(tmpCus == this->head){
+							tmpCus->next->prev = nullptr;
+							this->head = tmpCus->next;
+						}else{
+							tmpCus->prev->next = tmpCus->next;
+							tmpCus->next->prev = tmpCus->prev;
+						}
+						tmpCus->print();
+						customer* deleteNode = tmpCus;
+						tmpCus = tmpCus->prev;
+						delete deleteNode;
+						this->count--;
+					}else{
+					tmpCus = tmpCus->prev;
+					}
+				}
+			}
 
-	void resetQueue_Order(){
-		for(int i = 0; i < this->count; i++){
-			this->tail->print();
-			customer* out_queue = this->tail;
-			this->tail = this->tail->prev;
-			delete out_queue;
-		}
-		this->head = nullptr;
-		this->tail = nullptr;
-		this->count = 0;
-	}
+			void Delete_all_yang(){
+				customer* tmpCus = tail;
+				int tmp = this->count;
+				for(int i = 0; i < tmp && tmpCus != nullptr; i++){
+					if(tmpCus->energy > 0){
+						if(this->count == 1){
+							delete this->head;
+							this->head = nullptr;
+							this->tail = nullptr;
+							this->count = 0;
+							return;
+						}
+						if(tmpCus == this->tail){
+							tmpCus->prev->next = nullptr;
+							this->tail = tmpCus->prev;
+						}else if(tmpCus == this->head){
+							tmpCus->next->prev = nullptr;
+							this->head = tmpCus->next;
+						}else{
+							tmpCus->prev->next = tmpCus->next;
+							tmpCus->next->prev = tmpCus->prev;
+						}
+						customer* deleteNode = tmpCus;
+						tmpCus = tmpCus->prev;
+						delete deleteNode;
+						this->count--;
+					}else{
+					tmpCus = tmpCus->prev;
+					}
+				}
+			}
 
+			void reset_without_print(){
+				for(int i = 0; i < this->count; i++){
+					customer* out_queue = this->tail;
+					this->tail = this->tail->prev;
+					delete out_queue;
+				}
+				this->head = nullptr;
+				this->tail = nullptr;
+				this->count = 0;
+			}
+
+			void resetQueue_Order(){
+				for(int i = 0; i < this->count; i++){
+					this->tail->print();
+					customer* out_queue = this->tail;
+					this->tail = this->tail->prev;
+					delete out_queue;
+				}
+				this->head = nullptr;
+				this->tail = nullptr;
+				this->count = 0;
+			}
+
+			void Delete_cus_with_name(string name){
+				customer* tmpCus = this->head;
+				for(int i = 0; i < this->count; i++){
+					if(tmpCus->name == name){
+						if(this->count == 1){	
+							delete this->head;
+							this->head = nullptr;
+							this->tail = nullptr;
+							this->count = 0;
+							return;
+						}
+						if(tmpCus == this->tail){
+							tmpCus->prev->next = nullptr;
+							this->tail = tmpCus->prev;
+						}else if(tmpCus == this->head){
+							tmpCus->next->prev = nullptr;
+							this->head = tmpCus->next;
+						}else{
+							tmpCus->prev->next = tmpCus->next;
+							tmpCus->next->prev = tmpCus->prev;
+						}
+						delete tmpCus;
+						this->count--;
+						return;
+					}
+					tmpCus = tmpCus->next;
+				}
+			}
 	};
 	public:
 		queue* Queue = new queue();
 		queue* Order = new queue();
+		queue* Order_in_Queue = new queue();
 	public:
 
 		imp_res() : current(nullptr), number_of_people(0) {};
@@ -410,7 +503,7 @@ class imp_res : public Restaurant
 			cus->next->prev = cus;
 		}
 
-		void swapCustomer(customer* cus1, customer* cus2){
+		void Swap_in_Table(customer* cus1, customer* cus2){
 			if (cus2->next == cus1) {
 					customer *temp = cus1;
 					cus1 = cus2;
@@ -491,7 +584,7 @@ class imp_res : public Restaurant
 		}
 
 		//Đuổi oán linh và trả vị trị X về người bên trái
-		void Yin_out(customer* out_res){
+		void Delete_yin(customer* out_res){
 			if(this->number_of_people == 1){
 				delete out_res;
 				this->current = nullptr;
@@ -516,7 +609,7 @@ class imp_res : public Restaurant
 		}
 
 		//Đuổi chú thuật sư và trả vị trị X về người bên phải
-		void Yang_out(customer* out_res){
+		void Delete_yang(customer* out_res){
 			if(this->number_of_people == 1){
 				delete out_res;
 				this->current = nullptr;
@@ -588,6 +681,7 @@ class imp_res : public Restaurant
 			//Energy bằng 0 => cút
 			if(energy == 0) return;						
 
+			//Cùng tên trong hàng đợi => cút
 			customer *tmpQueue = this->Queue->get();
 			for(int i = 0;i < this->Queue->size(); i++){
 				if(tmpQueue->name == name) return;
@@ -607,6 +701,8 @@ class imp_res : public Restaurant
 			//Đủ người rồi đứng chờ đi
 			if(this->number_of_people == MAXSIZE){
 				this->Queue->enqueue(cus);
+				customer* Order_cus = new customer(cus->name,cus->energy,nullptr,nullptr);
+				this->Order_in_Queue->enqueue(Order_cus);
 				return;
 			}
 
@@ -666,6 +762,7 @@ class imp_res : public Restaurant
 				while(this->number_of_people < MAXSIZE && !this->Queue->empty()){
 					customer* cus = this->Queue->getTable();
 					this->RED_2(cus);
+					this->Order_in_Queue->Delete_cus_with_name(cus->name);
 				}		
 			}
 			else{return;}			
@@ -683,9 +780,9 @@ class imp_res : public Restaurant
 						//Tìm người đến trước nhất để xóa
 						if(out_res->name == this->Order->get()->name){
 							if(out_res->energy > 0){
-								this->Yang_out(out_res);
+								this->Delete_yang(out_res);
 							}else{
-								this->Yin_out(out_res);
+								this->Delete_yin(out_res);
 							}
 							this->Order->dequeue();
 							out_res = this->current;
@@ -743,10 +840,12 @@ class imp_res : public Restaurant
 			do{
 				if(cusStart_yin->energy < 0 && cusEnd_yin->energy < 0){
 					if(pass_yin > this->number_of_people) break;
- 					swapCustomer(cusStart_yin,cusEnd_yin);
+ 					Swap_in_Table(cusStart_yin,cusEnd_yin);
+
 					customer* tmpCus = cusEnd_yin;
 					cusEnd_yin = cusStart_yin;
 					cusStart_yin = tmpCus;
+
 					if(cusStart_yin->prev == cusEnd_yin){
 						cusStart_yin = cusEnd_yin;
 						pass_yin += 1;
@@ -771,10 +870,12 @@ class imp_res : public Restaurant
 			do{
 				if(cusStart_yang->energy > 0 && cusEnd_yang->energy > 0){
 					if(pass_yang > this->number_of_people)  break;
-					swapCustomer(cusEnd_yang,cusStart_yang);
+					Swap_in_Table(cusEnd_yang,cusStart_yang);
+
 					customer* tmpCus = cusEnd_yang;
 					cusEnd_yang = cusStart_yang;
 					cusStart_yang = tmpCus;
+
 					if(cusStart_yang->prev == cusEnd_yang){
 						cusStart_yang = cusEnd_yang;
 						pass_yang += 1;
@@ -785,6 +886,7 @@ class imp_res : public Restaurant
 					}
 				}else{
 					if(pass_yang >= this->number_of_people && cusEnd_yang->energy < 0 && cusStart_yang->energy < 0) break;
+					
 					if(cusStart_yang->energy < 0){
 						cusStart_yang = cusStart_yang->prev;
 						pass_yang += 1;
@@ -905,15 +1007,16 @@ class imp_res : public Restaurant
 			}
 
 			if(sum_yang >= abs(sum_yin)){
-				this->Queue->r_outYin();
-				while(!this->Order->isOutofYin()){
-					string Yin_name = this->Order->r_outYin_onlyOne();
+				this->Order_in_Queue->Delete_all_yin_with_print();
+				this->Queue->Delete_all_yin();
+				while(!this->Order->Out_of_Yin_cus()){
+					string Yin_name = this->Order->Delete_one_Yin_with_print();
 					customer* out_res = this->current;
 					
 					do{
 						if(out_res->name == Yin_name){
 							out_res->print();
-							this->Yin_out(out_res);
+							this->Delete_yin(out_res);
 							out_res = this->current;
 						}else{
 							out_res = out_res->next;
@@ -921,15 +1024,16 @@ class imp_res : public Restaurant
 					}while(out_res != this->current);
 				}
 			}else{			
-				this->Queue->r_outYang();
-				while(!this->Order->isOutofYang()){
-					string Yang_name = this->Order->r_outYang_onlyOne();
+				this->Order_in_Queue->Delete_all_yang_with_print();
+				this->Queue->Delete_all_yang();
+				while(!this->Order->Out_of_Yang_cus()){
+					string Yang_name = this->Order->Delete_one_Yang_with_print();
 					customer* out_res = this->current;
 					
 					do{
 						if(out_res->name == Yang_name){
 							out_res->print();
-							this->Yang_out(out_res);
+							this->Delete_yang(out_res);
 							out_res = this->current;
 						}else{
 							out_res = out_res->next;
