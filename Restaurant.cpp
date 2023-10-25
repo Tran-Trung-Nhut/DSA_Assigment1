@@ -73,22 +73,6 @@ class imp_res : public Restaurant
 						return;
 					}
 				}
-
-				void dequeue(){
-					if(this->count == 0) return;
-					if(this->count == 1){
-						delete this->head;
-						this->head = nullptr;
-						this->tail = nullptr;
-						this->count -= 1;
-						return;
-					}
-					customer* cus = this->head;
-					this->head = this->head->next;
-					this->head->prev = nullptr;
-					this->count--;
-					delete cus;
-				}
 				
 				customer* getTable(){
 					if(this->count == 0) return nullptr;
@@ -117,20 +101,6 @@ class imp_res : public Restaurant
 					this->head = nullptr;
 					this->tail = nullptr;
 					this->count = 0;
-				}
-
-				customer* get_largest_energy(){
-					int LARGEST_energy = INT16_MIN;
-					customer* tmpCus = this->tail;
-					customer* PosMax = nullptr;
-					for(int i = 0; i < this->count;i++){
-						if(abs(tmpCus->energy) > LARGEST_energy){
-							LARGEST_energy = abs(tmpCus->energy);
-							PosMax = tmpCus;
-						}
-						tmpCus = tmpCus->prev;
-					}
-					return PosMax;
 				}
 
 				customer* get(){
@@ -1015,7 +985,6 @@ class imp_res : public Restaurant
 					}
 				}
 			}
-
 			to_Print->r_Print_and_delete();
 
 			this->Queue_to_Table();
