@@ -556,6 +556,8 @@ class imp_res : public Restaurant
 					customer* Order_cus = new customer(cus->name,cus->energy,nullptr,nullptr);
 					this->Order->enqueue_without_MAXSIZE(Order_cus);
 					this->Queue->enqueue(cus);
+				}else{
+					delete cus;
 				}
 				return;
 			}else{
