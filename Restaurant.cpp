@@ -670,6 +670,7 @@ class imp_res : public Restaurant
 		{
 			if(this->Queue->size() == 0 || this->Queue->size() == 1) return;
 
+			//Trường hợp chỉ có 2 người trong hàng đợi và trị tuyệt đối energy của người đứng sau lớn hơn người đứng trước thì đổi
 			if(this->Queue->size() == 2 && abs(this->Queue->get()->energy) < abs(this->Queue->get_tail()->energy)){
 				this->Queue->set_tail(this->Queue->get());
 				this->Queue->set_head(this->Queue->get()->next);
@@ -944,6 +945,8 @@ class imp_res : public Restaurant
 		void DOMAIN_EXPANSION()
 		{
 			if(this->number_of_people == 0 || this->number_of_people == 1){return;}
+
+			if(this->Order->Out_of_Curses_cus() || this->Order->Out_of_Sorcerers_cus()) return;
 
 			int sum_Sorcerers = 0, sum_Curses = 0;
 			customer* tmpCus = this->current;
