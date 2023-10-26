@@ -12,7 +12,26 @@ class imp_res : public Restaurant
 				customer* tail;
 			public:
 				queue():head(nullptr),tail(nullptr),count(0){};
-				~queue();
+				~queue(){
+					this->delete_All();
+				}
+
+				void delete_All(){
+					if(this->count == 0) return;
+					while(true){
+						if(this->count == 1){
+							delete this->head;
+							this->tail = this->head = nullptr;
+							this->count = 0;
+							break;
+						}
+						customer* deleteCus = this->head;
+						this->head = this->head->next;
+						this->head->prev = nullptr;
+						this->count -= 1;
+						delete deleteCus;
+					}
+				}
 
 				int size(){
 					return this->count;
@@ -91,16 +110,12 @@ class imp_res : public Restaurant
 					return cus;
 				}
 
-				void r_Print_and_delete(){
+				void r_Print(){
+					customer* tmpCus = this->tail;
 					for(int i = 0; i < this->count; i++){
-						this->tail->print();
-						customer* out_queue = this->tail;
-						this->tail = this->tail->prev;
-						delete out_queue;
+						tmpCus->print();
+						tmpCus = tmpCus->prev;
 					}
-					this->head = nullptr;
-					this->tail = nullptr;
-					this->count = 0;
 				}
 
 				customer* get(){
@@ -322,7 +337,25 @@ class imp_res : public Restaurant
 
 		imp_res() : current(nullptr), number_of_people(0) {};
 		~imp_res(){
-			delete current;
+			this->delete_All_Res();
+			delete Queue;
+			delete Order;
+		}
+
+		void delete_All_Res(){
+			if(this->number_of_people == 0) return;
+			while(true){
+				if(this->number_of_people == 1){
+					delete this->current;
+					this->current = nullptr;
+					this->number_of_people = 0;
+					break;
+				}
+				customer* deleteCus = this->current;
+				this->current = this->current->next;
+				delete deleteCus;
+				this->number_of_people -= 1;
+			}
 		}
 
 		//Cập nhật vị trí khách hàng
@@ -985,7 +1018,9 @@ class imp_res : public Restaurant
 					}
 				}
 			}
-			to_Print->r_Print_and_delete();
+			to_Print->r_Print();
+
+			delete to_Print;
 
 			this->Queue_to_Table();
 		}
